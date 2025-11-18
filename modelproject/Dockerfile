@@ -3,7 +3,9 @@ FROM python:3.13-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     # uv가 만든 .venv를 기본 PATH에 등록
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    # 기본 settings를 Supabase로 설정 (필요 시 배포 환경에서 덮어쓰기 가능)
+    DJANGO_SETTINGS_MODULE=modelproject.supabase_settings
 
 WORKDIR /app
 
@@ -36,4 +38,9 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app
 
-CMD ["gunicorn", "--chdir", "/app", "--bind", "0.0.0.0:8000", "modelproject.wsgi:application"]
+# Cloudtype는 동적 포트($PORT)를 할당하므로 이를 바인드
+# 컨테이너 시작 시 DB 마이그레이션 및 정적 파일 수집까지 수행
+CMD ["/bin/sh", "-c", \
+    "SUPABASE_DB_PORT=\${SUPABASE_DB_PORT_MIGRATE:-\${SUPABASE_DB_PORT}} python manage.py migrate --noinput && \
+     python manage.py collectstatic --noinput && \
+     gunicorn --chdir /app --bind 0.0.0.0:${PORT:-8000} modelproject.wsgi:application"]

@@ -18,13 +18,18 @@ from pathlib import Path
 
 
 # 환경변수 설정
-from decouple import config, AutoConfig
-
-SECRET_KEY = config("SECRET_KEY")
+import os
+from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-config = AutoConfig(search_path=BASE_DIR)
+
+# 프로젝트 루트(BASE_DIR)에 있는 .env를 우선적으로 읽도록 설정
+config = AutoConfig(search_path=str(BASE_DIR))
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# 우선 순위: OS 환경변수 > .env(AutoConfig)
+SECRET_KEY = os.getenv("SECRET_KEY") or config("SECRET_KEY", default="dev-secret-key-change-me")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -53,12 +58,12 @@ INSTALLED_APPS = [
     "data_api",
     "django_filters",
     "corsheaders",
-    "storages",
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -151,8 +156,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = "/static"  # docker-compose: ./static:/app/static
-STATICFILES_DIRS = [ BASE_DIR / "static-dev" ]  # 루트/static을 수집 대상으로 추가
+# Cloudtype/일반 배포에서 안전한 상대 경로로 수집
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [ BASE_DIR / "static-dev" ]
+
+# WhiteNoise: 압축/해시된 정적 파일 서빙
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # Default primary key field type
