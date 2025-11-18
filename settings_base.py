@@ -22,7 +22,7 @@ import os
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 # 프로젝트 루트(BASE_DIR)에 있는 .env를 우선적으로 읽도록 설정
 config = AutoConfig(search_path=str(BASE_DIR))
@@ -74,7 +74,7 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-ROOT_URLCONF = "modelproject.urls"
+ROOT_URLCONF = "urls"
 
 TEMPLATES = [
     {
@@ -91,7 +91,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "modelproject.wsgi.application"
+WSGI_APPLICATION = "wsgi.application"
 
 REST_FRAMEWORK = {
     # Authentication
