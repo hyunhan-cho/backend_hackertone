@@ -7,7 +7,7 @@ DATABASES 만 .env 값 기반으로 Postgres(Supabase)로 교체합니다.
    SUPABASE_DB_* 전용 env 키만 사용합니다.
 """
 
-from .settings_base import *
+from settings_base import *
 import os
 
 
