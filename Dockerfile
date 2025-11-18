@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DJANGO_SETTINGS_MODULE=modelproject.supabase_settings
+    DJANGO_SETTINGS_MODULE=supabase_settings
 
 WORKDIR /app
 
@@ -31,4 +31,4 @@ ENV PYTHONPATH=/app
 CMD ["/bin/sh", "-c", \
     "SUPABASE_DB_PORT=${SUPABASE_DB_PORT_MIGRATE:-${SUPABASE_DB_PORT}} python manage.py migrate --noinput && \
      python manage.py collectstatic --noinput && \
-     gunicorn --bind 0.0.0.0:${PORT:-8000} modelproject.wsgi:application"]
+     gunicorn --bind 0.0.0.0:${PORT:-8000} wsgi:application"]
